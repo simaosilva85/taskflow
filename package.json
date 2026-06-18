@@ -1,0 +1,19 @@
+{
+  "name": "taskflow",
+  "version": "1.0.0",
+  "description": "TaskFlow — gestionnaire de tâches (projet final : déployer et exploiter une application web)",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "morgan": "^1.10.0",
+    "pg": "^8.12.0"
+  }
+}
