@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="TaskFlow — gestionnaire de tâches simple, rapide et conteneurisé." />
+    <title>TaskFlow — Gestionnaire de tâches</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%236366f1'/%3E%3Cpath d='M28 52l14 14 30-32' fill='none' stroke='white' stroke-width='10' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="app__header">
+        <div class="brand">
+          <span class="brand__logo" aria-hidden="true">
+            <svg viewBox="0 0 100 100" width="40" height="40">
+              <rect width="100" height="100" rx="22" fill="currentColor" />
+              <path d="M28 52l14 14 30-32" fill="none" stroke="white" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </span>
+          <div>
+            <h1 class="brand__name">TaskFlow</h1>
+            <p class="brand__tagline">Gérez vos tâches, simplement.</p>
+          </div>
+        </div>
+        <span id="health" class="health" title="Disponibilité du service">
+          <span class="health__dot"></span>
+          <span class="health__label">…</span>
+        </span>
+      </header>
+
+      <section class="card">
+        <form id="task-form" class="task-form" autocomplete="off">
+          <input
+            type="text"
+            id="task-title"
+            class="task-form__input"
+            placeholder="Qu'avez-vous à faire ?"
+            maxlength="200"
+            required
+          />
+          <select id="task-priority" class="task-form__select" aria-label="Priorité">
+            <option value="basse">Basse</option>
+            <option value="normale" selected>Normale</option>
+            <option value="haute">Haute</option>
+          </select>
+          <button type="submit" class="task-form__button">
+            <span aria-hidden="true">+</span> Ajouter
+          </button>
+        </form>
+
+        <p id="error" class="error" role="alert" hidden></p>
+
+        <nav class="filters" aria-label="Filtrer les tâches">
+          <button class="filter is-active" data-filter="all">Toutes <span class="filter__count" data-count="all">0</span></button>
+          <button class="filter" data-filter="todo">À faire <span class="filter__count" data-count="todo">0</span></button>
+          <button class="filter" data-filter="done">Faites <span class="filter__count" data-count="done">0</span></button>
+        </nav>
+
+        <ul id="task-list" class="task-list"></ul>
+
+        <div id="empty" class="empty" hidden>
+          <span class="empty__icon" aria-hidden="true">🗒️</span>
+          <p class="empty__text">Rien ici pour l'instant.</p>
+          <p class="empty__hint">Ajoutez votre première tâche ci-dessus.</p>
+        </div>
+      </section>
+
+      <footer class="app__footer">
+        <span id="stats">—</span>
+        <a href="/health" target="_blank" rel="noopener">État du service ↗</a>
+      </footer>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
