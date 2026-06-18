@@ -5,7 +5,7 @@
 > **Groupe** : _______
 > **Membres** : Simão Silva · _______ · _______
 > **URL publique** : https://taskflow.planbadge.fr
-> **Dépôt** : https://github.com/_______/taskflow
+> **Dépôt** : https://github.com/simaosilva85/taskflow
 > **Date** : Juin 2026
 
 > *Seuls les étudiants mentionnés dans ce rapport et visibles dans les commits du dépôt sont considérés comme contributeurs au projet.*
@@ -63,7 +63,7 @@ Tout utilisateur ayant besoin d'un gestionnaire de tâches simple et rapide, acc
 
 ## 2. Dépôt GitHub
 
-Le code source est hébergé dans un dépôt **public** : `https://github.com/_______/taskflow`
+Le code source est hébergé dans un dépôt **public** : `https://github.com/simaosilva85/taskflow`
 
 ### Contributions du groupe
 Chaque membre commite sous sa propre identité Git. L'historique montre une progression par étapes claires, avec des messages « métier » suivant la convention `type: description` (voir [`CONTRIBUTING.md`](../CONTRIBUTING.md)).
