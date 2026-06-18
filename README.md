@@ -8,6 +8,10 @@ déploiement → supervision → exploitation.
 
 `VS Code → GitHub → Docker → Coolify → Internet`
 
+![Aperçu de TaskFlow](docs/screenshot.png)
+
+> 📄 **Rapport de synthèse** : [`docs/RAPPORT.md`](docs/RAPPORT.md) · version PDF : [`docs/Rapport_TaskFlow.pdf`](docs/Rapport_TaskFlow.pdf)
+
 ---
 
 ## 🧩 Fonctionnalités

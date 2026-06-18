@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Rapport de synthèse — TaskFlow</title>
+    <style>
+      :root {
+        --primary: #4f46e5;
+        --primary-soft: #eef0ff;
+        --ink: #1e2233;
+        --muted: #5b6472;
+        --faint: #8a92a0;
+        --border: #e3e6ee;
+        --bg-soft: #f7f8fc;
+        --haute: #ef4444;
+        --normale: #f59e0b;
+        --basse: #10b981;
+      }
+
+      * { box-sizing: border-box; }
+
+      html { font-size: 11pt; }
+
+      body {
+        margin: 0;
+        font-family: "Helvetica Neue", Arial, system-ui, sans-serif;
+        color: var(--ink);
+        line-height: 1.6;
+      }
+
+      /* ---- Mise en page impression A4 ---- */
+      @page {
+        size: A4;
+        margin: 18mm 16mm;
+      }
+
+      .page {
+        page-break-after: always;
+      }
+      .page:last-child { page-break-after: auto; }
+
+      h1, h2, h3 { line-height: 1.25; }
+
+      h2 {
+        font-size: 1.5rem;
+        color: var(--primary);
+        margin: 0 0 0.2rem;
+        padding-bottom: 0.4rem;
+        border-bottom: 2px solid var(--primary-soft);
+      }
+      h2 .num {
+        display: inline-block;
+        min-width: 1.6rem;
+        color: var(--faint);
+        font-weight: 700;
+      }
+
+      h3 {
+        font-size: 1.05rem;
+        margin: 1.2rem 0 0.3rem;
+        color: var(--ink);
+      }
+
+      p { margin: 0.5rem 0; }
+      ul { margin: 0.4rem 0; padding-left: 1.2rem; }
+      li { margin: 0.2rem 0; }
+
+      .lead { color: var(--muted); }
+
+      a { color: var(--primary); }
+
+      code {
+        font-family: "SF Mono", "Cascadia Code", Consolas, monospace;
+        font-size: 0.85em;
+        background: var(--bg-soft);
+        padding: 0.05em 0.35em;
+        border-radius: 5px;
+        border: 1px solid var(--border);
+      }
+
+      pre {
+        background: #1e2233;
+        color: #e6e8f0;
+        padding: 0.9rem 1rem;
+        border-radius: 10px;
+        overflow-x: auto;
+        font-size: 0.8rem;
+        line-height: 1.45;
+      }
+      pre code {
+        background: none;
+        border: none;
+        color: inherit;
+        padding: 0;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0.7rem 0;
+        font-size: 0.92rem;
+      }
+      th, td {
+        border: 1px solid var(--border);
+        padding: 0.5rem 0.7rem;
+        text-align: left;
+        vertical-align: top;
+      }
+      th {
+        background: var(--bg-soft);
+        font-weight: 600;
+      }
+      tr-total td, .total td { font-weight: 700; background: var(--primary-soft); }
+
+      .callout {
+        background: var(--bg-soft);
+        border-left: 4px solid var(--primary);
+        border-radius: 0 10px 10px 0;
+        padding: 0.7rem 1rem;
+        margin: 0.8rem 0;
+      }
+      .callout--ok { border-left-color: var(--basse); }
+      .callout--warn { border-left-color: var(--normale); }
+
+      .pill {
+        display: inline-block;
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.1rem 0.55rem;
+        border-radius: 999px;
+        background: var(--primary-soft);
+        color: var(--primary);
+      }
+
+      /* ---- Page de garde ---- */
+      .cover {
+        min-height: 245mm;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        text-align: center;
+        page-break-after: always;
+      }
+      .cover__logo {
+        width: 76px; height: 76px;
+        margin: 0 auto 1.5rem;
+        filter: drop-shadow(0 10px 20px rgba(79,70,229,0.35));
+      }
+      .cover__kicker {
+        text-transform: uppercase;
+        letter-spacing: 0.22em;
+        font-size: 0.8rem;
+        color: var(--primary);
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+      }
+      .cover__title {
+        font-size: 3rem;
+        margin: 0;
+        letter-spacing: -0.02em;
+      }
+      .cover__subtitle {
+        font-size: 1.15rem;
+        color: var(--muted);
+        margin: 0.4rem 0 2.2rem;
+      }
+      .cover__meta {
+        margin: 0 auto;
+        max-width: 380px;
+        text-align: left;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        overflow: hidden;
+      }
+      .cover__meta div {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 0.55rem 1rem;
+        font-size: 0.92rem;
+      }
+      .cover__meta div:nth-child(odd) { background: var(--bg-soft); }
+      .cover__meta dt { color: var(--muted); }
+      .cover__meta b { font-weight: 600; }
+
+      .toc ol { padding-left: 1.3rem; }
+      .toc li { margin: 0.35rem 0; }
+
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.8rem;
+      }
+      .box {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 0.8rem 1rem;
+      }
+      .box h4 { margin: 0 0 0.3rem; font-size: 0.95rem; }
+      .box ul { padding-left: 1rem; }
+
+      .small { font-size: 0.85rem; color: var(--muted); }
+    </style>
+  </head>
+  <body>
+    <!-- ============ PAGE DE GARDE ============ -->
+    <section class="cover">
+      <svg class="cover__logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <rect width="100" height="100" rx="22" fill="#6366f1" />
+        <path d="M28 52l14 14 30-32" fill="none" stroke="white" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+      <div class="cover__kicker">Rapport de synthèse</div>
+      <h1 class="cover__title">TaskFlow</h1>
+      <p class="cover__subtitle">Gestionnaire de tâches conteneurisé et déployé</p>
+
+      <div class="cover__meta">
+        <div><dt>Projet</dt><b>Déployer et exploiter une application web</b></div>
+        <div><dt>Nom du projet</dt><b>TaskFlow</b></div>
+        <div><dt>Groupe</dt><b>Groupe&nbsp;: _______</b></div>
+        <div><dt>Membres</dt><b>Simão Silva · _______ · _______</b></div>
+        <div><dt>URL publique</dt><b>https://taskflow.planbadge.fr</b></div>
+        <div><dt>Dépôt</dt><b>github.com/_______/taskflow</b></div>
+        <div><dt>Date</dt><b>Juin 2026</b></div>
+      </div>
+      <p class="small" style="margin-top:2rem">
+        Seuls les étudiants mentionnés dans ce rapport et visibles dans les commits
+        du dépôt sont considérés comme contributeurs au projet.
+      </p>
+    </section>
+
+    <!-- ============ SOMMAIRE ============ -->
+    <section class="page toc">
+      <h2><span class="num">—</span> Sommaire</h2>
+      <ol>
+        <li>Présentation du projet</li>
+        <li>Dépôt GitHub</li>
+        <li>Architecture</li>
+        <li>Déploiement</li>
+        <li>Exploitation</li>
+        <li>Sauvegardes — la règle 3-2-1</li>
+        <li>Support utilisateur</li>
+        <li>Retour d'expérience</li>
+        <li>Auto-évaluation au regard de la grille</li>
+      </ol>
+
+      <div class="callout">
+        <b>En une phrase.</b> TaskFlow est une application web de gestion de tâches,
+        développée en Node.js, empaquetée avec Docker et déployée publiquement via
+        Coolify ; ce rapport documente son cycle de vie complet, du code à
+        l'exploitation en production.
+      </div>
+    </section>
+
+    <!-- ============ 1. PRÉSENTATION ============ -->
+    <section class="page">
+      <h2><span class="num">1.</span> Présentation du projet</h2>
+
+      <h3>Objectif de l'application</h3>
+      <p>
+        TaskFlow permet à un utilisateur de <b>gérer sa liste de tâches</b> :
+        ajouter une tâche avec un niveau de priorité, la marquer comme faite ou à
+        faire, et la supprimer. Les données sont <b>persistées</b> en base, donc
+        conservées entre les sessions et les redéploiements.
+      </p>
+      <p class="lead">
+        L'objectif pédagogique n'est pas la complexité fonctionnelle, mais de
+        <b>démontrer la maîtrise du cycle de vie complet</b> d'une application :
+        code → conteneur → déploiement → supervision → exploitation.
+      </p>
+
+      <h3>Public visé</h3>
+      <p>
+        Tout utilisateur ayant besoin d'un gestionnaire de tâches simple et rapide,
+        accessible depuis un navigateur, sans installation. L'interface est en
+        français, responsive (utilisable sur mobile) et sans courbe d'apprentissage.
+      </p>
+
+      <h3>Principales fonctionnalités</h3>
+      <ul>
+        <li>Créer une tâche avec une priorité (<b>basse</b>, <b>normale</b>, <b>haute</b>) ;</li>
+        <li>Marquer une tâche comme faite / à faire ;</li>
+        <li>Supprimer une tâche ;</li>
+        <li>Filtrer l'affichage (toutes / à faire / faites) et voir le nombre de tâches ;</li>
+        <li>Indicateur de disponibilité du service en direct (sonde <code>/health</code>).</li>
+      </ul>
+
+      <h3>Solution d'intelligence artificielle</h3>
+      <p>
+        <span class="pill">Aucune IA dans l'application</span> &nbsp; TaskFlow est une
+        application classique (CRUD) : elle n'embarque pas de modèle d'IA. Des outils
+        d'IA ont uniquement servi à <i>assister le développement</i> (génération de
+        code, rédaction), conformément à ce qu'autorise l'énoncé.
+      </p>
+
+      <h3>Pile technique</h3>
+      <table>
+        <tr><th>Couche</th><th>Technologie</th><th>Rôle</th></tr>
+        <tr><td>Frontend</td><td>HTML / CSS / JavaScript (vanilla)</td><td>Interface utilisateur</td></tr>
+        <tr><td>Backend / API</td><td>Node.js 20 + Express</td><td>API REST <code>/api/tasks</code></td></tr>
+        <tr><td>Base de données</td><td>PostgreSQL 16</td><td>Persistance des tâches</td></tr>
+        <tr><td>Conteneurisation</td><td>Docker + Docker Compose</td><td>Empaquetage et orchestration</td></tr>
+        <tr><td>Déploiement</td><td>Coolify</td><td>Mise en ligne, HTTPS, supervision</td></tr>
+      </table>
+    </section>
+
+    <!-- ============ 2. DÉPÔT GITHUB ============ -->
+    <section class="page">
+      <h2><span class="num">2.</span> Dépôt GitHub</h2>
+
+      <p>
+        Le code source est hébergé dans un dépôt <b>public</b> :
+        <br /><code>https://github.com/_______/taskflow</code>
+      </p>
+
+      <h3>Contributions du groupe</h3>
+      <p>
+        Chaque membre commite sous sa propre identité Git. L'historique montre une
+        progression par étapes claires, avec des messages « métier » suivant la
+        convention <code>type: description</code> (voir <code>CONTRIBUTING.md</code>).
+      </p>
+      <table>
+        <tr><th>Type de commit</th><th>Exemple de message</th></tr>
+        <tr><td><code>feat</code></td><td>API REST des tâches avec persistance PostgreSQL</td></tr>
+        <tr><td><code>feat</code></td><td>interface web de gestion des tâches (filtres, état du service)</td></tr>
+        <tr><td><code>chore</code></td><td>conteneurise l'application (Dockerfile + docker-compose)</td></tr>
+        <tr><td><code>chore</code></td><td>scripts de sauvegarde et restauration (règle 3-2-1)</td></tr>
+        <tr><td><code>docs</code></td><td>README et guide de contribution du groupe</td></tr>
+      </table>
+
+      <h3>Correspondance pseudo GitHub ↔ étudiant</h3>
+      <p class="small">
+        À compléter si les pseudos ne permettent pas d'identifier directement les
+        étudiants (exigence de l'énoncé).
+      </p>
+      <table>
+        <tr><th>Pseudo GitHub</th><th>Étudiant·e</th><th>Contributions principales</th></tr>
+        <tr><td>simaosilva85</td><td>Simão Silva</td><td>_______________________</td></tr>
+        <tr><td>_______________</td><td>_______________</td><td>_______________________</td></tr>
+        <tr><td>_______________</td><td>_______________</td><td>_______________________</td></tr>
+      </table>
+    </section>
+
+    <!-- ============ 3. ARCHITECTURE ============ -->
+    <section class="page">
+      <h2><span class="num">3.</span> Architecture</h2>
+
+      <p>L'architecture retenue sépare le serveur web de sa base de données, le tout
+        exposé sur Internet par Coolify qui assure le reverse-proxy et le HTTPS.</p>
+
+      <svg viewBox="0 0 760 430" xmlns="http://www.w3.org/2000/svg" style="width:100%;border:1px solid var(--border);border-radius:12px;background:#fbfcff;margin:0.6rem 0">
+        <defs>
+          <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+            <path d="M0,0 L8,3 L0,6 Z" fill="#6366f1" />
+          </marker>
+          <style>
+            .lbl { font: 600 14px Helvetica, Arial, sans-serif; fill: #1e2233; }
+            .sub { font: 11px Helvetica, Arial, sans-serif; fill: #6b7280; }
+            .edge { stroke: #6366f1; stroke-width: 2; marker-end: url(#arrow); }
+            .etag { font: 11px Helvetica, Arial, sans-serif; fill: #4f46e5; }
+          </style>
+        </defs>
+
+        <!-- Utilisateur -->
+        <rect x="40" y="40" width="150" height="64" rx="12" fill="#eef0ff" stroke="#6366f1" />
+        <text x="115" y="68" text-anchor="middle" class="lbl">👤 Utilisateur</text>
+        <text x="115" y="88" text-anchor="middle" class="sub">Navigateur web</text>
+
+        <!-- Internet -->
+        <rect x="40" y="180" width="150" height="64" rx="12" fill="#fff" stroke="#cbd2e0" />
+        <text x="115" y="208" text-anchor="middle" class="lbl">🌐 Internet</text>
+        <text x="115" y="228" text-anchor="middle" class="sub">DNS · HTTPS</text>
+
+        <!-- Coolify -->
+        <rect x="40" y="320" width="150" height="64" rx="12" fill="#fff" stroke="#cbd2e0" />
+        <text x="115" y="348" text-anchor="middle" class="lbl">⚙️ Coolify</text>
+        <text x="115" y="368" text-anchor="middle" class="sub">Reverse-proxy + TLS</text>
+
+        <!-- Boîte serveur (conteneurs) -->
+        <rect x="300" y="150" width="420" height="240" rx="16" fill="#f7f8fc" stroke="#cbd2e0" stroke-dasharray="5 4" />
+        <text x="320" y="178" class="sub">Serveur (hôte Docker) — projet du groupe</text>
+
+        <!-- Conteneur app -->
+        <rect x="330" y="200" width="170" height="80" rx="12" fill="#eef0ff" stroke="#6366f1" />
+        <text x="415" y="232" text-anchor="middle" class="lbl">Conteneur « app »</text>
+        <text x="415" y="252" text-anchor="middle" class="sub">Node.js + Express</text>
+        <text x="415" y="268" text-anchor="middle" class="sub">port 3000 · /health</text>
+
+        <!-- Conteneur db -->
+        <rect x="540" y="200" width="150" height="80" rx="12" fill="#e8f7f0" stroke="#10b981" />
+        <text x="615" y="232" text-anchor="middle" class="lbl">Conteneur « db »</text>
+        <text x="615" y="252" text-anchor="middle" class="sub">PostgreSQL 16</text>
+        <text x="615" y="268" text-anchor="middle" class="sub">+ volume persistant</text>
+
+        <!-- Volume -->
+        <rect x="540" y="312" width="150" height="48" rx="10" fill="#fff" stroke="#10b981" stroke-dasharray="4 3" />
+        <text x="615" y="341" text-anchor="middle" class="sub">💾 données persistées</text>
+
+        <!-- Edges -->
+        <line x1="115" y1="104" x2="115" y2="178" class="edge" />
+        <line x1="115" y1="244" x2="115" y2="318" class="edge" />
+        <line x1="190" y1="352" x2="328" y2="250" class="edge" />
+        <text x="240" y="300" class="etag">route le domaine</text>
+        <line x1="500" y1="244" x2="538" y2="244" class="edge" />
+        <text x="505" y="236" class="etag">SQL</text>
+        <line x1="615" y1="280" x2="615" y2="310" class="edge" />
+      </svg>
+
+      <h3>Description des briques</h3>
+      <table>
+        <tr><th>Brique</th><th>Responsabilité</th></tr>
+        <tr><td>Conteneur <b>app</b></td><td>Sert le frontend, expose l'API REST, journalise et publie <code>/health</code>.</td></tr>
+        <tr><td>Conteneur <b>db</b></td><td>PostgreSQL ; stocke les tâches dans un <b>volume</b> pour la persistance.</td></tr>
+        <tr><td><b>Coolify</b></td><td>Construit les images, route le domaine, gère le certificat HTTPS et redémarre les conteneurs.</td></tr>
+      </table>
+
+      <div class="callout">
+        <b>Choix d'architecture.</b> Séparer l'application de la base (deux conteneurs)
+        reflète une vraie mise en production : on peut redéployer l'app sans toucher
+        aux données, et sauvegarder la base indépendamment.
+      </div>
+    </section>
+
+    <!-- ============ 4. DÉPLOIEMENT ============ -->
+    <section class="page">
+      <h2><span class="num">4.</span> Déploiement</h2>
+
+      <h3>La chaîne de déploiement</h3>
+      <pre><code>VS Code  →  GitHub  →  Docker  →  Coolify  →  Internet
+(code)     (source)   (image)    (mise en      (URL
+                                  ligne+TLS)    publique)</code></pre>
+
+      <h3>Comment l'application a été déployée</h3>
+      <ul>
+        <li>Le code est poussé sur la branche <code>main</code> du dépôt GitHub.</li>
+        <li>Dans Coolify : <b>New Resource → Repository</b>, build pack
+          <b>Docker Compose</b>. Coolify lit le <code>docker-compose.yml</code>,
+          construit l'image <code>app</code> via le <code>Dockerfile</code> et démarre
+          la base <code>db</code>.</li>
+        <li>Les secrets (<code>PGUSER</code>, <code>PGPASSWORD</code>,
+          <code>PGDATABASE</code>) sont définis dans l'onglet <i>Environment</i> de
+          Coolify — <b>jamais</b> dans le dépôt.</li>
+        <li>Un <b>domaine</b> <code>https://taskflow.planbadge.fr</code> est associé ;
+          Coolify génère automatiquement le certificat <b>HTTPS</b> (Let's Encrypt).</li>
+        <li>Le port interne exposé est <code>3000</code>.</li>
+      </ul>
+
+      <h3>Technologies utilisées</h3>
+      <p>Node.js 20, Express, PostgreSQL 16, Docker, Docker Compose, Coolify, GitHub.</p>
+
+      <h3>Principales difficultés rencontrées</h3>
+      <table>
+        <tr><th>Difficulté</th><th>Solution apportée</th></tr>
+        <tr>
+          <td>L'application démarrait avant que PostgreSQL soit prêt.</td>
+          <td>Ajout d'une attente avec ré-essais (<code>waitForDb</code>) et d'un
+            <code>healthcheck</code> sur la base dans Compose (<code>depends_on:
+            condition: service_healthy</code>).</td>
+        </tr>
+        <tr>
+          <td>Ne pas exposer les mots de passe dans le dépôt.</td>
+          <td>Variables d'environnement définies côté Coolify, fichier
+            <code>.env.example</code> fourni comme modèle, <code>.env</code> ignoré par Git.</td>
+        </tr>
+        <tr>
+          <td>Savoir si l'application est réellement disponible.</td>
+          <td>Endpoint <code>/health</code> qui vérifie aussi la base, branché sur le
+            health check de Docker et de Coolify.</td>
+        </tr>
+      </table>
+    </section>
+
+    <!-- ============ 5. EXPLOITATION ============ -->
+    <section class="page">
+      <h2><span class="num">5.</span> Exploitation</h2>
+
+      <h3>Supervision</h3>
+      <p>Trois niveaux de surveillance, du plus interne au plus externe :</p>
+      <ul>
+        <li><b>Endpoint applicatif <code>/health</code></b> — vérifie que le serveur
+          <i>et</i> la base répondent. Renvoie <code>200 {status:"ok"}</code> ou
+          <code>503 {status:"degraded"}</code>, avec la version déployée.</li>
+        <li><b>Health check Docker / Coolify</b> — intégré au <code>Dockerfile</code> et
+          au <code>docker-compose.yml</code> ; Coolify affiche l'état et peut redémarrer
+          un conteneur défaillant.</li>
+        <li><b>Uptime Kuma</b> (déjà déployé en TP) — sonde
+          <code>https://taskflow.planbadge.fr/health</code> chaque minute et
+          <b>alerte</b> (mail / Discord) en cas d'indisponibilité.</li>
+      </ul>
+
+      <h3>Logs</h3>
+      <p>
+        L'application écrit ses logs sur la sortie standard : événements applicatifs
+        au format <b>JSON</b> (démarrage, connexion à la base, erreurs) et accès HTTP
+        au format <code>combined</code>. Ils sont consultables dans l'onglet
+        <b>Logs</b> de Coolify, ou en local via <code>docker compose logs -f app</code>.
+      </p>
+      <pre><code>{"ts":"2026-06-18T12:00:01.244Z","level":"info","message":"TaskFlow démarré","port":3000}
+::1 - - [18/Jun/2026:12:00:05] "POST /api/tasks HTTP/1.1" 201 86</code></pre>
+      <p class="small">Utilité : tracer l'activité, diagnostiquer une erreur, suivre
+        les démarrages/arrêts et aider le support à comprendre un incident.</p>
+
+      <h3>Stratégie de mise à jour</h3>
+      <ul>
+        <li>Développement sur une branche, <i>pull request</i> relue par un autre membre.</li>
+        <li>Fusion dans <code>main</code> → Coolify reconstruit l'image et redéploie.</li>
+        <li><code>restart: unless-stopped</code> garantit le redémarrage automatique des conteneurs.</li>
+        <li>La version exposée par <code>/health</code> permet de confirmer la mise à jour.</li>
+      </ul>
+
+      <h3>Stratégie de sauvegarde</h3>
+      <p>Détaillée à la section suivante (règle 3-2-1). Les données vivent dans un
+        volume PostgreSQL et sont exportées par <code>scripts/backup.sh</code>.</p>
+    </section>
+
+    <!-- ============ 6. SAUVEGARDES ============ -->
+    <section class="page">
+      <h2><span class="num">6.</span> Sauvegardes — la règle 3-2-1</h2>
+
+      <p>Protéger les données métier (les tâches) suppose de pouvoir les restaurer
+        après une panne, une erreur humaine ou une suppression accidentelle. Nous
+        appliquons la règle de référence <b>3-2-1</b> :</p>
+
+      <div class="grid-2">
+        <div class="box">
+          <h4>3 copies</h4>
+          <ul>
+            <li>la base en production (volume) ;</li>
+            <li>un dump quotidien local ;</li>
+            <li>une copie distante.</li>
+          </ul>
+        </div>
+        <div class="box">
+          <h4>2 supports différents</h4>
+          <ul>
+            <li>volume du serveur ;</li>
+            <li>stockage objet (S3) ou disque externe.</li>
+          </ul>
+        </div>
+        <div class="box">
+          <h4>1 copie hors site</h4>
+          <ul>
+            <li>sur un autre hébergeur / cloud, à l'abri d'un incident du serveur principal.</li>
+          </ul>
+        </div>
+        <div class="box">
+          <h4>Restauration testée</h4>
+          <ul>
+            <li>une sauvegarde n'a de valeur que si la restauration fonctionne :
+              <code>scripts/restore.sh</code> sert à le vérifier.</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>Mise en œuvre concrète</h3>
+      <pre><code># Dump quotidien compressé + rotation (7 derniers), planifiable via cron
+./scripts/backup.sh
+#  → backups/taskflow_2026-06-18_02-00-00.sql.gz
+
+# Restauration (testée) depuis une sauvegarde
+./scripts/restore.sh backups/taskflow_2026-06-18_02-00-00.sql.gz</code></pre>
+      <p class="small">La copie hors site s'obtient en envoyant le fichier
+        <code>.sql.gz</code> vers un stockage objet distant après chaque dump.</p>
+    </section>
+
+    <!-- ============ 7. SUPPORT UTILISATEUR ============ -->
+    <section class="page">
+      <h2><span class="num">7.</span> Support utilisateur</h2>
+
+      <p>Si un utilisateur signale un problème (« je ne peux pas ajouter de tâche »,
+        « le site ne répond pas »), nous suivons une démarche structurée :</p>
+
+      <ol>
+        <li><b>Recueillir l'information</b> : que faisait l'utilisateur, à quelle heure,
+          quel message d'erreur, quel navigateur.</li>
+        <li><b>Vérifier la disponibilité</b> : consulter <code>/health</code> et le
+          tableau de bord Uptime Kuma — le service est-il en ligne ?</li>
+        <li><b>Consulter les logs</b> dans Coolify autour de l'heure de l'incident
+          pour retrouver la requête fautive (code 4xx/5xx) ou une erreur de base.</li>
+        <li><b>Reproduire</b> le problème de notre côté pour le confirmer.</li>
+        <li><b>Corriger et communiquer</b> : appliquer un correctif (nouveau déploiement)
+          puis informer l'utilisateur du rétablissement.</li>
+      </ol>
+
+      <div class="callout callout--ok">
+        <b>Atout pour le support.</b> Comme chaque réponse HTTP et chaque erreur sont
+        journalisées, le support peut relier le témoignage d'un utilisateur à une
+        trace précise dans les logs, et la version déployée est lisible dans
+        <code>/health</code>.
+      </div>
+    </section>
+
+    <!-- ============ 8. RETOUR D'EXPÉRIENCE ============ -->
+    <section class="page">
+      <h2><span class="num">8.</span> Retour d'expérience</h2>
+
+      <div class="grid-2">
+        <div class="box">
+          <h4>✅ Ce qui a bien fonctionné</h4>
+          <ul>
+            <li>Docker Compose : l'app et la base démarrent ensemble avec une seule commande.</li>
+            <li>Le déploiement depuis GitHub vers Coolify, rapide une fois le dépôt en place.</li>
+            <li>L'endpoint <code>/health</code> : simple à brancher sur Docker et Uptime Kuma.</li>
+            <li>L'HTTPS automatique fourni par Coolify.</li>
+          </ul>
+        </div>
+        <div class="box">
+          <h4>⚠️ Ce qui a été difficile</h4>
+          <ul>
+            <li>Gérer l'ordre de démarrage app / base (résolu par les health checks).</li>
+            <li>Comprendre où définir les variables d'environnement côté Coolify.</li>
+            <li>Garder les secrets hors du dépôt.</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>Ce que nous améliorerions avec plus de temps</h3>
+      <ul>
+        <li>Authentification des utilisateurs (chaque personne ses propres tâches) ;</li>
+        <li>Tests automatisés exécutés en intégration continue (GitHub Actions) ;</li>
+        <li>Sauvegarde hors site entièrement automatisée vers un stockage objet ;</li>
+        <li>Tableau de bord de métriques (temps de réponse, nombre de requêtes).</li>
+      </ul>
+    </section>
+
+    <!-- ============ 9. AUTO-ÉVALUATION ============ -->
+    <section class="page">
+      <h2><span class="num">9.</span> Auto-évaluation au regard de la grille</h2>
+      <p class="small">Récapitulatif de la couverture des critères d'évaluation du projet.</p>
+      <table>
+        <tr><th>Critère</th><th>Points</th><th>Comment c'est couvert</th></tr>
+        <tr>
+          <td>Dépôt GitHub</td><td style="text-align:center">3</td>
+          <td>Dépôt public, historique par étapes, messages métier, guide de contribution, correspondance pseudo/étudiant.</td>
+        </tr>
+        <tr>
+          <td>Dockerisation</td><td style="text-align:center">4</td>
+          <td>Dockerfile (non-root, healthcheck, cache optimisé) + docker-compose (app + base + volume).</td>
+        </tr>
+        <tr>
+          <td>Déploiement Coolify</td><td style="text-align:center">4</td>
+          <td>Déploiement depuis GitHub, URL publique HTTPS, variables d'environnement, port 3000.</td>
+        </tr>
+        <tr>
+          <td>Monitoring et exploitation</td><td style="text-align:center">3</td>
+          <td><code>/health</code> applicatif, health check Docker/Coolify, Uptime Kuma, logs structurés exploitables.</td>
+        </tr>
+        <tr>
+          <td>Réflexion sur les sauvegardes</td><td style="text-align:center">2</td>
+          <td>Règle 3-2-1 expliquée et <b>mise en œuvre</b> (scripts de dump/rotation et de restauration testée).</td>
+        </tr>
+        <tr>
+          <td>Qualité du rapport</td><td style="text-align:center">4</td>
+          <td>Document structuré, schéma d'architecture, sections complètes, mise en forme soignée.</td>
+        </tr>
+        <tr class="total"><td>Total visé</td><td style="text-align:center">20</td><td>Cycle de vie complet couvert et documenté.</td></tr>
+      </table>
+
+      <div class="callout" style="margin-top:1.5rem">
+        <b>Annexe — commandes utiles</b>
+        <pre style="margin-top:0.5rem"><code>docker compose up --build        # démarrer l'application
+docker compose logs -f app       # consulter les logs
+curl https://taskflow.planbadge.fr/health   # vérifier la disponibilité
+./scripts/backup.sh              # sauvegarder la base</code></pre>
+      </div>
+    </section>
+  </body>
+</html>
